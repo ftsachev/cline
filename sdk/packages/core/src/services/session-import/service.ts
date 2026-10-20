@@ -81,15 +81,7 @@ export class SessionImportService {
 	}
 
 	installedTools(): SessionImportTool[] {
-		return this.adapters
-			.filter((adapter) => {
-				try {
-					return adapter.isInstalled();
-				} catch {
-					return false;
-				}
-			})
-			.map((adapter) => adapter.tool);
+		return this.adapters.map((adapter) => adapter.tool);
 	}
 
 	/**
