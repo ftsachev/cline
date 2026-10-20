@@ -103,7 +103,22 @@ const bundleDesktopBackend = async (): Promise<void> => {
 		recursive: true,
 	});
 	const defines = telemetryDefineArgs();
-	await $`bun build ./sidecar/index.ts --target bun --minify ${defines} --outfile ${DESKTOP_BACKEND_BUNDLE}`;
+	const defineMap: Record<string, string> = {};
+	for (let i = 0; i < defines.length; i += 2) {
+		if (defines[i] !== "--define") continue;
+		const pair = defines[i + 1];
+		const eq = pair.indexOf("=");
+		if (eq < 0) continue;
+		defineMap[pair.slice(0, eq)] = pair.slice(eq + 1);
+	}
+	await Bun.build({
+		entrypoints: ["./sidecar/index.ts"],
+		target: "bun",
+		minify: true,
+		outdir: `${APP_ROOT}/${BIN_DIR}/desktop-backend`,
+		naming: "index.js",
+		define: defineMap,
+	});
 };
 
 // Each compiled CLI embeds a full Bun runtime (~100 MB), and both Linux copies
